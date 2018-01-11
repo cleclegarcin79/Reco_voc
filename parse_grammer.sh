@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./bin.linux/HParse ./var/gram.txt ./var/wdnet.txt
+./bin.linux/HParse ./conf/gram.txt ./var/wdnet.txt
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HParse'\n"

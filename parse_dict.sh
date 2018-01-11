@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cat ./var/fr.dict | ./src/sort.py > ./var/fr.sorted.dict
+cat ./conf/fr.dict | ./src/sort.py > ./var/fr.sorted.dict
 
 if [ $? != 0 ]; then
     printf "Error when sorting dictionary: './var/fr.dict'\n"
@@ -9,7 +9,7 @@ else
 	printf "sorted './var/fr.dict' to './var/fr.sorted.dict' \n"
 fi
 
-cat ./var/words.txt | ./src/sort.py > ./var/words.sorted.txt
+cat ./conf/words.txt | ./src/sort.py > ./var/words.sorted.txt
 
 if [ $? != 0 ]; then
     printf "Error when sorting dictionary: './var/words.txt'\n"
