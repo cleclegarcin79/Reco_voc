@@ -7,6 +7,12 @@ if [ ! -f "var" ]; then
 	mkdir var
 fi
 
+if [ ! -f "mfc" ]; then
+	mkdir mfc
+	mkdir mfc/train
+	mkdir mfc/test
+fi
+
 chmod +x *.sh
 chmod +x ./src/*.py
 chmod +x ./bin.linux/*
