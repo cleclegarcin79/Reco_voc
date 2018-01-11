@@ -1,11 +1,11 @@
-$stopcommand      = "stop" | "arrête";
-$initcommand  	  = "ouvre" | "ferme" | "baisse" | "éteins" | "monte" | "allume" | "descend" | "appelle";
+$stopcommand      = STOP | ARRÊTE;
+$initcommand  	  = OUVRE | FERME | BAISSE | ÉTEINDRE | MONTE | ALLUME | DESCEND | APPELLE;
 
-$determiner       = "mon" | "ma" | "l’" | "le" | "la" | "les" | "un" | "des" | "du";
-$device           = "lumière" | "store" | "rideau" | "télé" | "télévision" | "radio";
-$person           = "fille" | "fils" | "femme" | "mari" | "infirmière" | "médecin" | "docteur";
-$organisation     = "samu" | "secours" | "pompiers" | "supérette" | "supermarché";
+$determiner       = MON | MA | LE | LA | LES | UN | UNE | DES | DU;
+$device           = LUMIÈRE | STORE | RIDEAU | TÉLÉ | TÉLÉVISION | RADIO;
+$person           = FILLE | FILS | FEMME | MARI | INFIRMIÈRE | MÉDECIN | DOCTEUR;
+$organisation     = SAMU | SECOURS | POMPIERS | SUPERMARCHÉ;
 
-$object           = [$determiner] ( $device | $person | $organisation);
+$object           = [$determiner] ( $device | $person | $organisation) ;
 
 ($initcommand $object | $stopcommand [$object])
