@@ -2,5 +2,6 @@
 import sys
 import glob
 
-for file in glob.glob("./WAVE/*/*.wav"):
-    sys.stdout.write(file + " " + (file.replace("/WAVE/","/mfc/").replace(".wav",".mfc")) + "\n")
+if(len(sys.argv) == 2):
+    for file in glob.glob("./WAVE/" + sys.argv[1] + "/*.wav"):
+        sys.stdout.write(file + " " + (file.replace("/WAVE/","/mfc/").replace(".wav",".mfc")) + "\n")

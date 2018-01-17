@@ -106,22 +106,40 @@ fi
 #### convert to MFC ####
 ########################
 
-./src/generate_mfc_config.py > ./var/codetr.scp
+./src/generate_mfc_config.py train > ./var/train.scp
 
 if [ $? != 0 ]; then
-    printf "Error when generating mfc config: './var/codetr.scp'\n"
+    printf "Error when generating mfc config: './var/train.scp'\n"
 	exit $ERROR_CODE
 else
-	printf "generated './var/codetr.scp'\n"
+	printf "generated './var/train.scp'\n"
 fi
 
-./bin.linux/HCopy -T 1 -C ./conf/config -S ./var/codetr.scp
+./src/generate_mfc_config.py test > ./var/test.scp
+
+if [ $? != 0 ]; then
+    printf "Error when generating mfc config: './var/test.scp'\n"
+	exit $ERROR_CODE
+else
+	printf "generated './var/test.scp'\n"
+fi
+
+./bin.linux/HCopy -T 1 -C ./conf/config -S ./var/train.scp
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HCopy'\n"
 	exit $ERROR_CODE
 else
 	printf "parsed ./wav/* to ./train/*\n"
+fi
+
+./bin.linux/HCopy -T 1 -C ./conf/config -S ./var/test.scp
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HCopy'\n"
+	exit $ERROR_CODE
+else
+	printf "parsed ./wav/* to ./test/*\n"
 fi
 
 printf "Finished without errors!\n"
