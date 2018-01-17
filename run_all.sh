@@ -13,42 +13,98 @@ if [ ! -f "mfc" ]; then
 	mkdir mfc/test
 fi
 
-chmod +x *.sh
 chmod +x ./src/*.py
 chmod +x ./bin.linux/*
 
-./parse_grammer.sh
+#########################
+#### Grammar Parsing ####
+#########################
+
+./bin.linux/HParse ./conf/gram.txt ./var/wdnet.txt
 
 if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HParse'\n"
 	exit $ERROR_CODE
+else
+	printf "wdnet.txt written to ./var\n"
 fi
 
-./parse_dict.sh
+############################
+#### Dictionary Parsing ####
+############################
+
+cat ./conf/fr.dict | ./src/sort.py > ./var/fr.sorted.dict
 
 if [ $? != 0 ]; then
+    printf "Error when sorting dictionary: './var/fr.dict'\n"
 	exit $ERROR_CODE
+else
+	printf "sorted './var/fr.dict' to './var/fr.sorted.dict' \n"
 fi
 
+cat ./conf/words.txt | ./src/sort.py > ./var/words.sorted.txt
+
+if [ $? != 0 ]; then
+    printf "Error when sorting dictionary: './var/words.txt'\n"
+	exit $ERROR_CODE
+else
+	printf "sorted './var/words.txt' to './var/words.sorted.txt' \n"
+fi
+
+
+./bin.linux/HDMan -m -w ./var/words.sorted.txt -n ./var/monophones1 -l ./log/dlog ./var/dict.txt ./var/fr.sorted.dict
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HDMan'\n"
+	exit $ERROR_CODE
+else
+	printf "dict.txt written to ./var\n"
+fi
+
+############################
+#### Samples generation ####
+############################
 
 if [ ! -f "testprompts.txt" ]; then
-	./generate_samples.sh
+	./bin.linux/HSGen -l -n 200 ./var/wdnet.txt ./var/dict.txt > testprompts.txt
 
 	if [ $? != 0 ]; then
+	    printf "Error when executing command: './bin.linux/HSGen'\n"
 		exit $ERROR_CODE
+	else
+		printf "testprompts.txt written to ./\n"
 	fi
 fi
 
-./parse_prompts.sh
+#######################
+#### Parse prompts ####
+#######################
+
+cat ./testprompts.txt | ./src/conv2mlf.py > ./var/words.mlf
 
 if [ $? != 0 ]; then
+    printf "Error when parsing prompts: './testprompts.txt'\n"
 	exit $ERROR_CODE
+else
+	printf "converted './testprompts.txt' to './var/words.mlf' \n"
 fi
 
-./make_mlf_phone.sh
+#########################
+#### make MLF phones ####
+#########################
+
+./bin.linux/HLEd -l '*' -d ./var/dict.txt -i ./var/phones0.mlf ./conf/mkphones0.led ./var/words.mlf
 
 if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HLEd'\n"
 	exit $ERROR_CODE
+else
+	printf "phones0.mlf written to ./var\n"
 fi
+
+########################
+#### convert to MFC ####
+########################
 
 ./src/generate_mfc_config.py > ./var/codetr.scp
 
@@ -68,4 +124,4 @@ else
 	printf "parsed ./wav/* to ./train/*\n"
 fi
 
-printf "Done!\n"
+printf "Finished without errors!\n"
