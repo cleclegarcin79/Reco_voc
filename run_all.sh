@@ -1,4 +1,12 @@
 #!/bin/sh
+skip_10=1
+
+if [ -x "$(command -v julia)" ]; then
+	printf "Julia is installed, continuing...\n"
+else
+	printf "Please install Julia to run this script: apt-get install julia\n"
+	exit 0
+fi
 
 chmod +x ./clean.sh
 printf "cleaning old files (if present)\n"
@@ -183,7 +191,7 @@ else
 	printf "generated './var/test.scp'\n"
 fi
 
-./bin.linux/HCopy -T 1 -C ./conf/wave_config -S ./var/codetr_train.scp
+./bin.linux/HCopy -T 1 -C ./conf/wave_config -S ./var/codetr_train.scp > ./log/convert_train_log
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HCopy'\n"
@@ -192,7 +200,7 @@ else
 	printf "parsed ./WAVE/train \n"
 fi
 
-./bin.linux/HCopy -T 1 -C ./conf/wave_config_test -S ./var/codetr_test.scp
+./bin.linux/HCopy -T 1 -C ./conf/wave_config_test -S ./var/codetr_test.scp > ./log/convert_test_log
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HCopy'\n"
@@ -232,31 +240,31 @@ else
 	printf "generated 'hmmdefs' \n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones0.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm0/macros -H ./HMM/hmm0/hmmdefs -M ./HMM/hmm1 ./var/monophones0
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones0.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm0/macros -H ./HMM/hmm0/hmmdefs -M ./HMM/hmm1 ./var/monophones0 > ./log/HMM_update_1
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 1\n"
+	printf "updated HMM 1\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones0.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm1/macros -H ./HMM/hmm1/hmmdefs -M ./HMM/hmm2 ./var/monophones0
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones0.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm1/macros -H ./HMM/hmm1/hmmdefs -M ./HMM/hmm2 ./var/monophones0 > ./log/HMM_update_2
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 2\n"
+	printf "updated HMM 2\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones0.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm2/macros -H ./HMM/hmm2/hmmdefs -M ./HMM/hmm3 ./var/monophones0
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones0.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm2/macros -H ./HMM/hmm2/hmmdefs -M ./HMM/hmm3 ./var/monophones0 > ./log/HMM_update_3
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 3\n"
+	printf "updated HMM 3\n"
 fi
 
 #####################################
@@ -291,22 +299,22 @@ else
 	printf "update HMM for 'sp' 5\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm5/macros -H ./HMM/hmm5/hmmdefs -M ./HMM/hmm6 ./var/monophones1
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm5/macros -H ./HMM/hmm5/hmmdefs -M ./HMM/hmm6 ./var/monophones1 > ./log/HMM_update_6
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 6\n"
+	printf "updated HMM 6\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm6/macros -H ./HMM/hmm6/hmmdefs -M ./HMM/hmm7 ./var/monophones1
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm6/macros -H ./HMM/hmm6/hmmdefs -M ./HMM/hmm7 ./var/monophones1 > ./log/HMM_update_7
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 7\n"
+	printf "updated HMM 7\n"
 fi
 
 ######################################
@@ -331,22 +339,22 @@ else
 	printf "realigned the data\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -M ./HMM/hmm8 ./var/monophones1
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -M ./HMM/hmm8 ./var/monophones1 > ./log/HMM_update_8
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 8\n"
+	printf "updated HMM 8\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm8/macros -H ./HMM/hmm8/hmmdefs -M ./HMM/hmm9 ./var/monophones1
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm8/macros -H ./HMM/hmm8/hmmdefs -M ./HMM/hmm9 ./var/monophones1 > ./log/HMM_update_9
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 9\n"
+	printf "updated HMM 9\n"
 fi
 
 #################################
@@ -362,7 +370,7 @@ else
 	printf "new aligned phones parsed\n"
 fi
 
-cat ./var/triphones1 | ./src/generate_mktri_config.py > ./var/mktri.hed
+cat ./var/monophones1 | ./src/generate_mktri_config.py > ./var/mktri.hed
 
 if [ $? != 0 ]; then
     printf "Error when generating : './var/mktri.hed'\n"
@@ -381,22 +389,80 @@ else
 fi
 
 
-./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm10/macros -H ./HMM/hmm10/hmmdefs -M ./HMM/hmm11 ./var/triphones1
+./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm10/macros -H ./HMM/hmm10/hmmdefs -M ./HMM/hmm11 ./var/triphones1 > ./log/HMM_update_11
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 11\n"
+	printf "updated HMM 11\n"
 fi
 
-./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -s ./var/stats -S ./var/train.scp -H ./HMM/hmm11/macros -H ./HMM/hmm11/hmmdefs -M ./HMM/hmm12 ./var/triphones1
+./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -s ./var/stats -S ./var/train.scp -H ./HMM/hmm11/macros -H ./HMM/hmm11/hmmdefs -M ./HMM/hmm12 ./var/triphones1 > ./log/HMM_update_12
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
 	exit $ERROR_CODE
 else
-	printf "updated monophones 12\n"
+	printf "updated HMM 12\n"
 fi
 
-printf "Finished without errors!\n"
+########################################
+#### Tied-State Triphones (step 10) ####
+########################################
+
+if [ $skip_10 = 0 ]; then
+
+	cp ./conf/tree.hed ./var/tree.hed
+	julia ./src/mkclscript.jl ./var/monophones1 ./var/tree.hed
+
+	if [ $? != 0 ]; then
+	    printf "Error when generating : './var/tree.hed'\n"
+		exit $ERROR_CODE
+	else
+		printf "generated : './var/tree.hed' \n"
+	fi
+
+	./bin.linux/HDMan -b sp -n ./var/fulllist -g ./conf/global.ded -l ./log/flog  ./var/beep-tri ./var/fr.sorted.dict
+
+	if [ $? != 0 ]; then
+	    printf "Error when executing command: './bin.linux/HDMan'\n"
+		exit $ERROR_CODE
+	else
+		printf "fulllist and beep-tri written to ./var\n"
+	fi
+
+	./bin.linux/HHEd -B -H ./HMM/hmm12/macros -H ./HMM/hmm12/hmmdefs -M ./HMM/hmm13 ./var/tree.hed ./var/triphones1 > ./log/HHed_step10_log
+
+	if [ $? != 0 ]; then
+	    printf "Error when executing command: './bin.linux/HHEd'\n"
+		exit $ERROR_CODE
+	else
+		printf "added tied-state triphones to HMM 13\n"
+	fi
+
+	./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm13/macros -H ./HMM/hmm13/hmmdefs -M ./HMM/hmm14 ./var/tiedlist > ./log/HMM_update_14
+
+	if [ $? != 0 ]; then
+	    printf "Error when executing command: './bin.linux/HERest'\n"
+		exit $ERROR_CODE
+	else
+		printf "updated HMM 14\n"
+	fi
+
+	./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm14/macros -H ./HMM/hmm14/hmmdefs -M ./HMM/hmm15 ./var/tiedlist > ./log/HMM_update_15
+
+	if [ $? != 0 ]; then
+	    printf "Error when executing command: './bin.linux/HERest'\n"
+		exit $ERROR_CODE
+	else
+		printf "updated HMM 15\n"
+	fi
+
+else 
+	printf "Step 10 skipped... \n"
+fi
+
+printf "\n------------------------\n"
+printf "Finished without errors!"
+printf "\n------------------------\n\n"
