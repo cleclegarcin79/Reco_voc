@@ -349,4 +349,54 @@ else
 	printf "updated monophones 9\n"
 fi
 
+#################################
+#### make triphones (step 9) ####
+#################################
+
+./bin.linux/HLEd -n ./var/triphones1 -l '*' -i ./var/wintri.mlf ./conf/mktri.led ./var/aligned.mlf
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HLEd'\n"
+	exit $ERROR_CODE
+else
+	printf "new aligned phones parsed\n"
+fi
+
+cat ./var/triphones1 | ./src/generate_mktri_config.py > ./var/mktri.hed
+
+if [ $? != 0 ]; then
+    printf "Error when generating : './var/mktri.hed'\n"
+	exit $ERROR_CODE
+else
+	printf "generated : './var/mktri.hed' \n"
+fi
+
+./bin.linux/HHEd -B -H ./HMM/hmm9/macros -H ./HMM/hmm9/hmmdefs -M ./HMM/hmm10 ./var/mktri.hed ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HHEd'\n"
+	exit $ERROR_CODE
+else
+	printf "cloned to HMM 10\n"
+fi
+
+
+./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm10/macros -H ./HMM/hmm10/hmmdefs -M ./HMM/hmm11 ./var/triphones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated monophones 11\n"
+fi
+
+./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -s ./var/stats -S ./var/train.scp -H ./HMM/hmm11/macros -H ./HMM/hmm11/hmmdefs -M ./HMM/hmm12 ./var/triphones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated monophones 12\n"
+fi
+
 printf "Finished without errors!\n"
