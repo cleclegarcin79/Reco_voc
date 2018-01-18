@@ -313,7 +313,7 @@ fi
 #### realigning the data (step 8) ####
 ######################################
 
-cat ./var/dict.txt | ./src/add_silence.py > ./var/dict.txt
+cat ./var/dict.txt | ./src/add_silence.py ./var/dict.txt
 
 if [ $? != 0 ]; then
     printf "Error when adding silence to : './var/dict.txt'\n"

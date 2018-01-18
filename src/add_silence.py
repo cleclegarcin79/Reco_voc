@@ -1,8 +1,14 @@
 #!/usr/bin/python3
 import sys
 
-for line in sys.stdin:
-    sys.stdout.write(line)
+if len(sys.argv) == 2:
+    buffer = []
+    for line in sys.stdin:
+        buffer.append(line)
 
-sys.stdout.write("SILENCE         sil\n")
+    with open(sys.argv[1], 'w') as f:
+        for line in buffer:
+            f.write(line)
+
+        f.write("SILENCE         sil\n")
 
