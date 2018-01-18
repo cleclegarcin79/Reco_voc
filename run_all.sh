@@ -1,7 +1,7 @@
 #!/bin/sh
 
 chmod +x ./clean.sh
-
+printf "cleaning old files (if present)\n"
 ./clean.sh
 
 if [ ! -d "log" ]; then
@@ -309,5 +309,44 @@ else
 	printf "updated monophones 7\n"
 fi
 
+######################################
+#### realigning the data (step 8) ####
+######################################
+
+cat ./var/dict.txt | ./src/add_silence.py > ./var/dict.txt
+
+if [ $? != 0 ]; then
+    printf "Error when adding silence to : './var/dict.txt'\n"
+	exit $ERROR_CODE
+else
+	printf "added silence to : './var/dict.txt' \n"
+fi
+
+./bin.linux/HVite -l '*' -o SWT -b SILENCE -C ./conf/HMM_config -a -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -i ./var/aligned.mlf -m -t 250.0 -y lab -I ./var/words.mlf -S ./var/train.scp  ./var/dict.txt ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HVite'\n"
+	exit $ERROR_CODE
+else
+	printf "realigned the data\n"
+fi
+
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -M ./HMM/hmm8 ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated monophones 8\n"
+fi
+
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm8/macros -H ./HMM/hmm8/hmmdefs -M ./HMM/hmm9 ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated monophones 9\n"
+fi
 
 printf "Finished without errors!\n"
