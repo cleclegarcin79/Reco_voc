@@ -1,5 +1,9 @@
 #!/bin/sh
 
+chmod +x ./clean.sh
+
+./clean.sh
+
 if [ ! -d "log" ]; then
 	mkdir log
 fi
@@ -19,14 +23,26 @@ if [ ! -d "HMM" ]; then
 	mkdir HMM/hmm1
 	mkdir HMM/hmm2
 	mkdir HMM/hmm3
+	mkdir HMM/hmm4
+	mkdir HMM/hmm5
+	mkdir HMM/hmm6
+	mkdir HMM/hmm7
+	mkdir HMM/hmm8
+	mkdir HMM/hmm9
+	mkdir HMM/hmm10
+	mkdir HMM/hmm11
+	mkdir HMM/hmm12
+	mkdir HMM/hmm13
+	mkdir HMM/hmm14
+	mkdir HMM/hmm15
 fi
 
 chmod +x ./src/*.py
 chmod +x ./bin.linux/*
 
-#########################
-#### Grammar Parsing ####
-#########################
+##################################
+#### Grammar Parsing (step 1) ####
+##################################
 
 ./bin.linux/HParse ./conf/gram.txt ./var/wdnet.txt
 
@@ -37,9 +53,9 @@ else
 	printf "wdnet.txt written to ./var\n"
 fi
 
-############################
-#### Dictionary Parsing ####
-############################
+#####################################
+#### Dictionary Parsing (step 2) ####
+#####################################
 
 cat ./conf/fr.dict | ./src/sort.py > ./var/fr.sorted.dict
 
@@ -77,9 +93,9 @@ else
 	printf "created './var/monophones0' \n"
 fi
 
-############################
-#### Samples generation ####
-############################
+######################################
+#### Samples generation (step 3) #####
+######################################
 
 if [ ! -f "testprompts.txt" ]; then
 	./bin.linux/HSGen -l -n 200 ./var/wdnet.txt ./var/dict.txt > testprompts.txt
@@ -92,9 +108,9 @@ if [ ! -f "testprompts.txt" ]; then
 	fi
 fi
 
-#######################
-#### Parse prompts ####
-#######################
+################################
+#### Parse prompts (step 4) ####
+################################
 
 cat ./testprompts.txt | ./src/conv2mlf.py > ./var/words.mlf
 
@@ -105,9 +121,9 @@ else
 	printf "converted './testprompts.txt' to './var/words.mlf' \n"
 fi
 
-#########################
-#### make MLF phones ####
-#########################
+##################################
+#### make MLF phones (step 4) ####
+##################################
 
 ./bin.linux/HLEd -l '*' -d ./var/dict.txt -i ./var/phones0.mlf ./conf/mkphones0.led ./var/words.mlf
 
@@ -118,9 +134,18 @@ else
 	printf "phones0.mlf written to ./var\n"
 fi
 
-########################
-#### convert to MFC ####
-########################
+./bin.linux/HLEd -l '*' -d ./var/dict.txt -i ./var/phones1.mlf ./conf/mkphones1.led ./var/words.mlf
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HLEd'\n"
+	exit $ERROR_CODE
+else
+	printf "phones1.mlf written to ./var\n"
+fi
+
+#################################
+#### convert to MFC (step 5) ####
+#################################
 
 ./src/generate_mfc_config.py train > ./var/codetr_train.scp
 
@@ -176,9 +201,9 @@ else
 	printf "parsed ./WAVE/test \n"
 fi
 
-#######################
-#### HMM Trainning ####
-#######################
+################################
+#### HMM Trainning (step 6) ####
+################################
 
 ./bin.linux/HCompV -C ./conf/HMM_config -f 0.01 -m -S ./var/train.scp -M ./HMM/hmm0 ./conf/HMM_proto
 
@@ -234,8 +259,55 @@ else
 	printf "updated monophones 3\n"
 fi
 
-############################
-#### HMM silence fixing ####
-############################
+#####################################
+#### HMM silence fixing (step 7) ####
+#####################################
+
+cat ./HMM/hmm3/hmmdefs | ./src/add_sp.py > ./HMM/hmm4/hmmdefs
+cp ./HMM/hmm3/macros ./HMM/hmm4/macros
+
+if [ $? != 0 ]; then
+    printf "Error when adding sp to 'hmmdefs'\n"
+	exit $ERROR_CODE
+else
+	printf "added sp to 'hmmdefs' 4\n"
+fi
+
+cat ./var/monophones0 | ./src/create_monophones1.py > ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when generating monophones1: './var/monophones1'\n"
+	exit $ERROR_CODE
+else
+	printf "created './var/monophones1' \n"
+fi
+
+./bin.linux/HHEd -H ./HMM/hmm4/macros -H ./HMM/hmm4/hmmdefs -M ./HMM/hmm5 ./conf/sil.hed ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HHEd'\n"
+	exit $ERROR_CODE
+else
+	printf "update HMM for 'sp' 5\n"
+fi
+
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm5/macros -H ./HMM/hmm5/hmmdefs -M ./HMM/hmm6 ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated monophones 6\n"
+fi
+
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm6/macros -H ./HMM/hmm6/hmmdefs -M ./HMM/hmm7 ./var/monophones1
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated monophones 7\n"
+fi
+
 
 printf "Finished without errors!\n"
