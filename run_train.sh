@@ -1,5 +1,5 @@
 #!/bin/sh
-skip_10=1
+skip_10=0
 
 if [ -x "$(command -v julia)" ]; then
 	printf "Julia is installed, continuing...\n"
@@ -330,7 +330,7 @@ else
 	printf "added silence to : './var/dict.txt' \n"
 fi
 
-./bin.linux/HVite -l '*' -o SWT -b SILENCE -C ./conf/HMM_config -a -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -i ./var/aligned.mlf -m -t 250.0 -y lab -I ./var/words.mlf -S ./var/train.scp  ./var/dict.txt ./var/monophones1
+./bin.linux/HVite -l '*' -o SWT -b SILENCE -C ./conf/HMM_config -a -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -i ./var/aligned.mlf -m -t 250.0 150.0 1000.0 -y lab -I ./var/words.mlf -S ./var/train.scp  ./var/dict.txt ./var/monophones1
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HVite'\n"
@@ -339,7 +339,7 @@ else
 	printf "realigned the data\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -M ./HMM/hmm8 ./var/monophones1 > ./log/HMM_update_8
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/aligned.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm7/macros -H ./HMM/hmm7/hmmdefs -M ./HMM/hmm8 ./var/monophones1 > ./log/HMM_update_8
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
@@ -348,7 +348,7 @@ else
 	printf "updated HMM 8\n"
 fi
 
-./bin.linux/HERest -C ./conf/HMM_config -I ./var/phones1.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm8/macros -H ./HMM/hmm8/hmmdefs -M ./HMM/hmm9 ./var/monophones1 > ./log/HMM_update_9
+./bin.linux/HERest -C ./conf/HMM_config -I ./var/aligned.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm8/macros -H ./HMM/hmm8/hmmdefs -M ./HMM/hmm9 ./var/monophones1 > ./log/HMM_update_9
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HERest'\n"
@@ -361,7 +361,7 @@ fi
 #### make triphones (step 9) ####
 #################################
 
-./bin.linux/HLEd -n ./var/triphones1 -l '*' -i ./var/wintri.mlf ./conf/mktri.led ./var/aligned.mlf
+./bin.linux/HLEd -A -D -T 1 -n ./var/triphones1 -l '*' -i ./var/wintri.mlf ./conf/mktri.led ./var/aligned.mlf > ./log/step9-HLEd.txt
 
 if [ $? != 0 ]; then
     printf "Error when executing command: './bin.linux/HLEd'\n"
@@ -411,57 +411,61 @@ fi
 #### Tied-State Triphones (step 10) ####
 ########################################
 
-if [ $skip_10 = 0 ]; then
+cp ./conf/tree.hed ./var/tree.hed
+julia ./src/mkclscript.jl ./var/monophones0 ./var/tree.hed
 
-	cp ./conf/tree.hed ./var/tree.hed
-	julia ./src/mkclscript.jl ./var/monophones1 ./var/tree.hed
-
-	if [ $? != 0 ]; then
-	    printf "Error when generating : './var/tree.hed'\n"
-		exit $ERROR_CODE
-	else
-		printf "generated : './var/tree.hed' \n"
-	fi
-
-	./bin.linux/HDMan -b sp -n ./var/fulllist -g ./conf/global.ded -l ./log/flog  ./var/beep-tri ./var/fr.sorted.dict
-
-	if [ $? != 0 ]; then
-	    printf "Error when executing command: './bin.linux/HDMan'\n"
-		exit $ERROR_CODE
-	else
-		printf "fulllist and beep-tri written to ./var\n"
-	fi
-
-	./bin.linux/HHEd -B -H ./HMM/hmm12/macros -H ./HMM/hmm12/hmmdefs -M ./HMM/hmm13 ./var/tree.hed ./var/triphones1 > ./log/HHed_step10_log
-
-	if [ $? != 0 ]; then
-	    printf "Error when executing command: './bin.linux/HHEd'\n"
-		exit $ERROR_CODE
-	else
-		printf "added tied-state triphones to HMM 13\n"
-	fi
-
-	./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm13/macros -H ./HMM/hmm13/hmmdefs -M ./HMM/hmm14 ./var/tiedlist > ./log/HMM_update_14
-
-	if [ $? != 0 ]; then
-	    printf "Error when executing command: './bin.linux/HERest'\n"
-		exit $ERROR_CODE
-	else
-		printf "updated HMM 14\n"
-	fi
-
-	./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 1000.0 -S ./var/train.scp -H ./HMM/hmm14/macros -H ./HMM/hmm14/hmmdefs -M ./HMM/hmm15 ./var/tiedlist > ./log/HMM_update_15
-
-	if [ $? != 0 ]; then
-	    printf "Error when executing command: './bin.linux/HERest'\n"
-		exit $ERROR_CODE
-	else
-		printf "updated HMM 15\n"
-	fi
-
-else 
-	printf "Step 10 skipped... \n"
+if [ $? != 0 ]; then
+    printf "Error when generating : './var/tree.hed'\n"
+	exit $ERROR_CODE
+else
+	printf "generated : './var/tree.hed' \n"
 fi
+
+./bin.linux/HDMan -b sp -n ./var/fulllist0 -g ./conf/maketriphones.ded -l ./log/flog  ./var/beep-tri ./var/dict.txt
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HDMan'\n"
+	exit $ERROR_CODE
+else
+	printf "fulllist0 and beep-tri written to ./var\n"
+fi
+
+cat ./var/fulllist0 | ./src/fill_fulllist.py ./var/monophones0 > ./var/fulllist
+
+if [ $? != 0 ]; then
+    printf "Error when updating fulllist: './var/fulllist'\n"
+	exit $ERROR_CODE
+else
+	printf "created fulllist\n"
+fi
+
+./bin.linux/HHEd -B -H ./HMM/hmm12/macros -H ./HMM/hmm12/hmmdefs -M ./HMM/hmm13 ./var/tree.hed ./var/triphones1 > ./log/HHed_step10_log
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HHEd'\n"
+	exit $ERROR_CODE
+else
+	printf "added tied-state triphones to HMM 13\n"
+fi
+
+./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 3000.0 -S ./var/train.scp -H ./HMM/hmm13/macros -H ./HMM/hmm13/hmmdefs -M ./HMM/hmm14 ./var/tiedlist > ./log/HMM_update_14
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated HMM 14\n"
+fi
+
+./bin.linux/HERest -B -C ./conf/HMM_config -I ./var/wintri.mlf -t 250.0 150.0 3000.0 -S ./var/train.scp -H ./HMM/hmm14/macros -H ./HMM/hmm14/hmmdefs -M ./HMM/hmm15 ./var/tiedlist > ./log/HMM_update_15
+
+if [ $? != 0 ]; then
+    printf "Error when executing command: './bin.linux/HERest'\n"
+	exit $ERROR_CODE
+else
+	printf "updated HMM 15\n"
+fi
+
 
 printf "\n------------------------\n"
 printf "Finished without errors!"

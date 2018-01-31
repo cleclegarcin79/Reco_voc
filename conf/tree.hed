@@ -1,77 +1,23 @@
 RO 100 "./var/stats"
 TR 0
-QS "R_NonBoundary" {*+*}
-QS "R_Silence" {*+sil}
-QS "R_E" {*+E}
-QS "R_H" {*+H}
-QS "R_O" {*+O}
-QS "R_R" {*+R}
-QS "R_S" {*+S}
-QS "R_Z" {*+Z}
-QS "R_a" {*+a}
-QS "R_an" {*+an}
-QS "R_b" {*+b}
-QS "R_d" {*+d}
-QS "R_e" {*+e}
-QS "R_eh" {*+eh}
-QS "R_eu" {*+eu}
-QS "R_euf" {*+euf}
-QS "R_f" {*+f}
-QS "R_i" {*+i}
-QS "R_in" {*+in}
-QS "R_j" {*+j}
-QS "R_k" {*+k}
-QS "R_l" {*+l}
-QS "R_m" {*+m}
-QS "R_n" {*+n}
-QS "R_o" {*+o}
-QS "R_oh" {*+oh}
-QS "R_on" {*+on}
-QS "R_p" {*+p}
-QS "R_s" {*+s}
-QS "R_swa" {*+swa}
-QS "R_t" {*+t}
-QS "R_u" {*+u}
-QS "R_v" {*+v}
-QS "R_w" {*+w}
-QS "R_y" {*+y}
-QS "R_z" {*+z}
-QS "L_NonBoundary" {*-*}
-QS "L_Silence" {sil-*}
-QS "L_E" {E-*}
-QS "L_H" {H-*}
-QS "L_O" {O-*}
-QS "L_R" {R-*}
-QS "L_S" {S-*}
-QS "L_Z" {Z-*}
-QS "L_a" {a-*}
-QS "L_an" {an-*}
-QS "L_b" {b-*}
-QS "L_d" {d-*}
-QS "L_e" {e-*}
-QS "L_eh" {eh-*}
-QS "L_eu" {eu-*}
-QS "L_euf" {euf-*}
-QS "L_f" {f-*}
-QS "L_i" {i-*}
-QS "L_in" {in-*}
-QS "L_j" {j-*}
-QS "L_k" {k-*}
-QS "L_l" {l-*}
-QS "L_m" {m-*}
-QS "L_n" {n-*}
-QS "L_o" {o-*}
-QS "L_oh" {oh-*}
-QS "L_on" {on-*}
-QS "L_p" {p-*}
-QS "L_s" {s-*}
-QS "L_swa" {swa-*}
-QS "L_t" {t-*}
-QS "L_u" {u-*}
-QS "L_v" {v-*}
-QS "L_w" {w-*}
-QS "L_y" {y-*}
-QS "L_z" {z-*}
+QS "R_NonBoundary" { *+* }
+QS "R_Silence" { *+sil }
+QS "R_Vowel" { *+aa,*+uu,*+oe,*+ii,*+ai,*+ee,*+oo,*+ei,*+au,*+ou,*+an,*+un }
+QS "R_Nasal" { *+mm,*+on,*+nn,*+un }
+QS "R_Front" { *+vv,*+ff,*+bb,*+in }
+QS "R_Stop"  { *+pp,*+tt }
+QS "R_C-frontal" { *+zz,*+ch,*+ss } 
+QS "R_Coronal" { *+ll,*+dd }
+QS "R_Back" { *+rr,*+kk }
+QS "L_NonBoundary" { *-* }
+QS "L_Silence" { sil-* }
+QS "L_Vowel" { aa-*,uu-*,oe-*,ii-*,ai-*,ee-*,oo-*,ei-*,au-*,ou-*,an-*,un-* }
+QS "L_Nasal" { mm-*,on-*,nn-*,un-* }
+QS "L_Front" { vv-*,ff-*,bb-*,in-* }
+QS "L_Stop"  { pp-*,tt-* }
+QS "L_C-frontal" { zz-*,ch-*,ss-* } 
+QS "L_Coronal" { ll-*,dd-* }
+QS "L_Back" { rr-*,kk-* }
  
 TR 2
 
